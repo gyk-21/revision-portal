@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGINX Interactive Interview Revision Portal | Architect Level</title>
+    <meta name="description"
+        content="Deep-dive NGINX architecture, reverse proxy, performance tuning, and top 50 interview Q&A for DevOps/SREs.">
+    <meta property="og:title" content="NGINX Interactive Interview Revision Portal | Architect Level" />
+    <meta property="og:description"
+        content="Deep-dive NGINX architecture, reverse proxy, performance tuning, and top interview Q&A for DevOps/SRE professionals." />
+    <meta property="og:type" content="website" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --sidebar-bg: #f8f9fa;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --primary-color: #009639;
+            /* NGINX Green */
+            --border-color: #dee2e6;
+            --code-bg: #f1f3f5;
+            --code-text: #e83e8c;
+            --header-bg: #ffffff;
+            --block-bg: #f8f9fa;
+            --q-color: #2b2b2b;
+            --a-color: #495057;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --sidebar-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-muted: #9e9e9e;
+            --primary-color: #00b14f;
+            --border-color: #333333;
+            --code-bg: #2d2d2d;
+            --code-text: #ff79c6;
+            --header-bg: #121212;
+            --block-bg: #1e1e1e;
+            --q-color: #ffffff;
+            --a-color: #b0b0b0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+            transition: background-color 0.2s, color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(0, 150, 57, 0.1);
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0 2rem;
+            max-width: 1000px;
+        }
+
+        /* Header / Controls */
+        .top-header {
+            position: sticky;
+            top: 0;
+            background-color: var(--header-bg);
+            padding: 1rem 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 900;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--block-bg);
+            border-color: var(--text-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #007a2e;
+            color: #ffffff;
+        }
+
+        /* Mobile Toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            margin-right: auto;
+        }
+
+        /* Sections */
+        section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border-color);
+            scroll-margin-top: 5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+        }
+
+        ul,
+        ol {
+            margin-bottom: 1.2rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, "Courier New", monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--text-color);
+            padding: 1.2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+
+        .note-block {
+            background-color: rgba(0, 150, 57, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* SVG Containers */
+        .svg-container {
+            width: 100%;
+            background-color: var(--block-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        .svg-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        /* SVG Animations */
+        path.animated-flow {
+            stroke-dasharray: 10;
+            animation: dash 20s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        /* Q&A Section */
+        .qa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .qa-item {
+            background-color: var(--block-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .qa-q {
+            font-weight: 700;
+            color: var(--q-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .qa-a {
+            color: var(--a-color);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 0 1.5rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Print Media CSS */
+        @media print {
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+            }
+
+            .sidebar,
+            .top-header,
+            .menu-toggle {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            section {
+                border-bottom: none;
+                break-inside: avoid;
+            }
+
+            pre,
+            .svg-container,
+            .qa-item {
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+            }
+
+            path.animated-flow {
+                animation: none !important;
+                stroke-dasharray: 0 !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            .qa-q {
+                color: #000 !important;
+            }
+
+            a {
+                text-decoration: none !important;
+                color: #000 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">NGINX Portal</div>
+        <a href="#architecture" class="nav-link active">1. NGINX Architecture</a>
+        <a href="#installation" class="nav-link">2. Installation & Config</a>
+        <a href="#proxy" class="nav-link">3. Reverse Proxy & LB</a>
+        <a href="#ssl" class="nav-link">4. SSL & Security</a>
+        <a href="#performance" class="nav-link">5. Performance Tuning</a>
+        <a href="#logging" class="nav-link">6. Logging & Tshoot</a>
+        <a href="#ha" class="nav-link">7. HA & Scalability</a>
+        <a href="#devops" class="nav-link">8. DevOps & Cloud</a>
+        <a href="#qa" class="nav-link">9. Top 50 Q&A</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">☰</button>
+            <button class="btn" id="themeToggle" aria-label="Toggle Theme">🌗 Theme</button>
+            <button class="btn btn-primary" id="printBtn">🖨 Download Printable Version</button>
+        </header>
+
+        <h1>End-to-End NGINX Architecture & Operations</h1>
+        <p>A deep-dive technical portal designed for 5+ years experienced System Operations, DevOps, and SRE
+            professionals. Master NGINX internals, configuration, scaling, and production-level troubleshooting.</p>
+
+        <!-- SECTION 1 -->
+        <section id="architecture">
+            <h2>1️⃣ NGINX Architecture (Deep Technical)</h2>
+            <p>Unlike traditional web servers like Apache (which typically handles one request per thread/process),
+                NGINX is built from the ground up to use an <strong>asynchronous, non-blocking, event-driven
+                    architecture</strong>. This allows it to handle 10,000+ concurrent connections with a remarkably low
+                memory footprint.</p>
+
+            <h3>Master & Worker Processes</h3>
+            <ul>
+                <li><strong>Master Process:</strong> Runs as <code>root</code>. Its primary role is to read and validate
+                    the configuration (<code>nginx.conf</code>), bind to privileged ports (like 80/443), and
+                    spawn/manage worker processes. It does not handle client requests directly.</li>
+                <li><strong>Worker Processes:</strong> Run as an unprivileged user (e.g., <code>nginx</code> or
+                    <code>www-data</code>). They do the actual work of processing network connections, reading/writing
+                    to disk, and communicating with upstream servers. Typically, you configure one worker per CPU core
+                    (<code>worker_processes auto;</code>).</li>
+            </ul>
+
+            <h3>Event-Driven Model (epoll / kqueue)</h3>
+            <p>Workers run a tight loop waiting for events on open sockets. Linux uses <code>epoll</code> and
+                FreeBSD/macOS use <code>kqueue</code>. Instead of a context switch for every connection, a worker gets
+                notified by the OS kernel <em>only</em> when a socket is ready for reading or writing. A single worker
+                can concurrently manage thousands of active HTTP keep-alive connections.</p>
+
+            <h3>Request Lifecycle Step-by-Step</h3>
+            <ol>
+                <li><strong>Client</strong> initiates a TCP handshake.</li>
+                <li>Kernel alerts NGINX via <code>epoll_wait()</code> that a socket is ready.</li>
+                <li><strong>Worker Connection:</strong> NGINX worker accepts the connection and begins parsing the HTTP
+                    headers as bytes arrive.</li>
+                <li><strong>Request Processing:</strong> NGINX determines the correct <code>server</code> and
+                    <code>location</code> block.</li>
+                <li><strong>Upstream:</strong> If it's a proxy pass, the worker opens a non-blocking TCP socket to the
+                    upstream app server.</li>
+                <li><strong>Response:</strong> As the upstream sends the payload back, NGINX buffers it or streams it
+                    directly to the client socket via kernel-level zero-copy (e.g., <code>sendfile</code>).</li>
+            </ol>
+
+            <div class="note-block">
+                <strong>NGINX vs Apache:</strong> Apache's MPM Prefork creates a heavy process per request, consuming
+                vast memory at scale (C10k problem). NGINX's event loop multiplexes I/O, meaning 10k idle connections in
+                NGINX cost only a few megabytes of RAM.
+            </div>
+
+            <h3>Visualizing the Architecture</h3>
+
+            <!-- Static SVG Diagram -->
+            <div class="svg-container">
+                <svg width="100%" height="220" viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#009639" />
+                        </marker>
+                    </defs>
+                    <g fill="var(--text-color)" font-family="sans-serif" font-size="14" font-weight="bold">
+                        <!-- Client -->
+                        <rect x="20" y="80" width="100" height="60" rx="8" fill="#e2e8f0" stroke="#64748b"
+                            stroke-width="2" />
+                        <text x="70" y="115" text-anchor="middle" fill="#0f172a">Client</text>
+
+                        <!-- Master Process -->
+                        <rect x="270" y="30" width="160" height="40" rx="4" fill="#fef08a" stroke="#ca8a04"
+                            stroke-width="2" />
+                        <text x="350" y="55" text-anchor="middle" fill="#713f12">Master Process</text>
+
+                        <!-- Workers Container -->
+                        <rect x="250" y="100" width="200" height="100" rx="8" fill="none" stroke="#009639"
+                            stroke-width="2" stroke-dasharray="4" />
+                        <text x="350" y="120" text-anchor="middle" font-size="12" fill="var(--text-muted)">Worker
+                            Processes</text>
+
+                        <!-- Worker 1 & 2 -->
+                        <rect x="270" y="140" width="70" height="40" rx="4" fill="#bbf7d0" stroke="#16a34a"
+                            stroke-width="2" />
+                        <text x="305" y="165" text-anchor="middle" fill="#14532d">WP 1</text>
+
+                        <rect x="360" y="140" width="70" height="40" rx="4" fill="#bbf7d0" stroke="#16a34a"
+                            stroke-width="2" />
+                        <text x="395" y="165" text-anchor="middle" fill="#14532d">WP 2</text>
+
+                        <!-- Upstream -->
+                        <rect x="620" y="80" width="120" height="60" rx="8" fill="#fbcfe8" stroke="#db2777"
+                            stroke-width="2" />
+                        <text x="680" y="115" text-anchor="middle" fill="#831843">Upstream Server</text>
+
+                        <!-- Lines -->
+                        <path d="M 120 110 L 250 145" stroke="#009639" stroke-width="3" marker-end="url(#arrow)" />
+                        <path d="M 450 145 L 620 110" stroke="#009639" stroke-width="3" marker-end="url(#arrow)" />
+
+                        <!-- Management Lines -->
+                        <path d="M 350 70 L 350 90" stroke="#ca8a04" stroke-width="2" stroke-dasharray="2"
+                            marker-end="url(#arrow)" />
+                    </g>
+                </svg>
+                <div class="svg-label">Static View: Client → Master → Workers → Upstream</div>
+            </div>
+
+            <!-- Animated SVG Diagram -->
+            <div class="svg-container">
+                <svg width="100%" height="220" viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="var(--text-color)" font-family="sans-serif" font-size="14" font-weight="bold">
+                        <rect x="20" y="80" width="100" height="60" rx="8" fill="#e2e8f0" stroke="#64748b"
+                            stroke-width="2" />
+                        <text x="70" y="115" text-anchor="middle" fill="#0f172a">Client</text>
+                        <rect x="280" y="80" width="140" height="60" rx="8" fill="#bbf7d0" stroke="#16a34a"
+                            stroke-width="2" />
+                        <text x="350" y="115" text-anchor="middle" fill="#14532d">NGINX Worker</text>
+                        <rect x="620" y="80" width="120" height="60" rx="8" fill="#fbcfe8" stroke="#db2777"
+                            stroke-width="2" />
+                        <text x="680" y="115" text-anchor="middle" fill="#831843">Upstream</text>
+
+                        <!-- Request Forward Flow -->
+                        <path d="M 120 100 L 280 100" stroke="#3b82f6" stroke-width="4" fill="none"
+                            class="animated-flow" />
+                        <path d="M 420 100 L 620 100" stroke="#db2777" stroke-width="4" fill="none"
+                            class="animated-flow" />
+                        <text x="200" y="90" text-anchor="middle" font-size="12" fill="#3b82f6">TCP Request</text>
+
+                        <!-- Response Reverse Flow -->
+                        <path d="M 620 120 L 420 120" stroke="#10b981" stroke-width="4" fill="none"
+                            class="animated-flow" />
+                        <path d="M 280 120 L 120 120" stroke="#10b981" stroke-width="4" fill="none"
+                            class="animated-flow" />
+                        <text x="520" y="140" text-anchor="middle" font-size="12" fill="#10b981">HTTP Response</text>
+                    </g>
+                </svg>
+                <div class="svg-label">Animated Flow: Live Traffic Movement (Using stroke-dashoffset)</div>
+            </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section id="installation">
+            <h2>2️⃣ Installation & Configuration</h2>
+
+            <h3>Installation (RHEL / Ubuntu)</h3>
+            <p>For production, always use the active stable or mainline repositories directly from nginx.org rather than
+                OS-default repos to ensure the latest patches.</p>
+            <pre><code># Ubuntu / Debian
+sudo apt update
+sudo apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring
+curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
+sudo apt update && sudo apt install nginx
+
+# RHEL / CentOS / AlmaLinux
+sudo yum install epel-release
+sudo yum install nginx
+sudo systemctl enable --now nginx
+</code></pre>
+
+            <h3>Standard Directory Structure</h3>
+            <ul>
+                <li><code>/etc/nginx/nginx.conf</code>: The main configuration file.</li>
+                <li><code>/etc/nginx/conf.d/</code>: Directory for individual app/virtual host configs.</li>
+                <li><code>/var/log/nginx/</code>: Default location for <code>access.log</code> and
+                    <code>error.log</code>.</li>
+                <li><code>/usr/share/nginx/html/</code>: Default docroot for static files.</li>
+            </ul>
+
+            <h3>Context Hierarchy Breakdown</h3>
+            <p>NGINX configs are structurally organized into cascading blocks called <em>contexts</em>.</p>
+            <pre><code>user nginx;
+worker_processes auto;          # MAIN CONTEXT (Global limits/processes)
+
+events {
+    worker_connections 1024;    # EVENTS CONTEXT (epoll, connections per worker)
+}
+
+http {                          # HTTP CONTEXT (Web traffic defaults)
+    include /etc/nginx/mime.types;
+    access_log /var/log/nginx/access.log;
+    
+    server {                    # SERVER CONTEXT (Virtual Host, Domain/IP binding)
+        listen 80;
+        server_name api.gyk.tech;
+        
+        location / {            # LOCATION CONTEXT (URI routing)
+            proxy_pass http://localhost:8080;
+        }
+    }
+}
+</code></pre>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section id="proxy">
+            <h2>3️⃣ Reverse Proxy & Load Balancing</h2>
+            <p>As an architect, your main use for NGINX is likely as an entrance gateway. It offloads workloads,
+                distributes traffic, and provides centralized logging.</p>
+
+            <h3>Upstream Blocks & Algorithms</h3>
+            <p>The <code>upstream</code> directive defines a cluster of servers to route logic to. NGINX supports
+                several load-balancing mechanisms:</p>
+            <ul>
+                <li><strong>Round Robin (Default):</strong> Distributes requests evenly across the pool.</li>
+                <li><strong>Least Connections:</strong> <code>least_conn;</code> routes traffic to the server with the
+                    fewest active TCP connections. Great for endpoints with variable latency.</li>
+                <li><strong>IP Hash:</strong> <code>ip_hash;</code> maps the client's IPv4/IPv6 directly to a server.
+                    This implicitly provides session stickiness/persistence.</li>
+            </ul>
+
+            <pre><code>upstream backend_cluster {
+    least_conn;                      # Algorithm selection
+    server 10.0.1.10:8000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.11:8000 max_fails=3 fail_timeout=30s;
+    server 10.0.1.12:8000 backup;    # Fallback disaster recovery node
+}
+
+server {
+    listen 80;
+    server_name myapp.com;
+
+    location /api/ {
+        proxy_pass http://backend_cluster;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        
+        # Timeout Tuning
+        proxy_connect_timeout 5s;
+        proxy_send_timeout 15s;
+        proxy_read_timeout 30s;
+    }
+}
+</code></pre>
+            <div class="note-block">
+                <strong>Interview Q&A Focus:</strong> "How do you prevent NGINX from passing requests to a dead
+                server?"<br>
+                <em>Answer:</em> "Using <code>max_fails</code> and <code>fail_timeout</code> in the upstream block
+                (Passive Health Checks) or NGINX Plus's <code>health_check</code> directive (Active Health Checks)."
+            </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section id="ssl">
+            <h2>4️⃣ SSL & Security</h2>
+            <p>SSL termination at the NGINX layer offloads cryptographic decryption overhead from backend microservices.
+            </p>
+
+            <h3>TLS Tuning & Hardening</h3>
+            <p>Architects must achieve high SSL Labs ratings by enforcing modern cipher suites and disabling legacy
+                protocols like TLSv1.0/1.1.</p>
+            <pre><code>server {
+    listen 443 ssl http2;
+    server_name secure.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    # TLS Tuning
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256...';
+    
+    # Session caching prevents fully renegotiating TLS on every request
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # HSTS (Strict Transport Security)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+}
+</code></pre>
+
+            <h3>Rate Limiting</h3>
+            <p>Mitigate DDoS attacks and brute-force attempts by restricting RPS (Requests Per Second).</p>
+            <pre><code># Define zone in HTTP block: 10m bytes, rate 5 requests per second
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
+
+server {
+    location /login {
+        # Allow a burst of 10 requests, delay others to adhere to rate
+        limit_req zone=api_limit burst=10 nodelay;
+    }
+}
+</code></pre>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section id="performance">
+            <h2>5️⃣ Performance Optimization</h2>
+            <p>To tune NGINX for high concurrency, we configure limits at both the OS and NGINX level.</p>
+
+            <ul>
+                <li><strong>worker_processes auto:</strong> Spawns one worker per CPU core automatically.</li>
+                <li><strong>worker_connections:</strong> Connections per worker. If auto gives 8 workers, and
+                    connections=1024, Max Clients = 8096.</li>
+                <li><strong>ulimit -n (File descriptors):</strong> Must surpass
+                    <code>worker_processes * worker_connections</code>. Set <code>worker_rlimit_nofile 100000;</code> in
+                    main context.</li>
+                <li><strong>keepalive:</strong> Keeps TCP connections between client/NGINX or NGINX/Upstream open to
+                    avoid 3-way handshake overhead.</li>
+            </ul>
+
+            <h3>Production Tuning Example</h3>
+            <pre><code>worker_processes auto;
+worker_rlimit_nofile 100000;
+
+events {
+    worker_connections 4096;
+    multi_accept on;
+    use epoll;
+}
+
+http {
+    # File I/O zero-copy
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+
+    # GZIP Compression
+    gzip on;
+    gzip_comp_level 5;
+    gzip_types text/plain application/json application/javascript text/css;
+
+    # Buffering (Mitigate slowloris attacks)
+    client_body_buffer_size 16K;
+    client_header_buffer_size 1k;
+    client_max_body_size 8m;
+    large_client_header_buffers 4 8k;
+}
+</code></pre>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section id="logging">
+            <h2>6️⃣ Logging & Troubleshooting</h2>
+
+            <h3>Custom Log Formats</h3>
+            <p>For ELK/Datadog ingestion, custom JSON logs are vastly superior to the default combined format. They
+                provide metadata like upstream response times.</p>
+            <pre><code>http {
+    log_format apm_json escape=json 
+    '{'
+        '"time_local":"$time_local",'
+        '"client_ip":"$remote_addr",'
+        '"request":"$request",'
+        '"status": "$status",'
+        '"body_bytes_sent":"$body_bytes_sent",'
+        '"request_time":"$request_time",'
+        '"upstream_response_time":"$upstream_response_time",'
+        '"upstream_addr":"$upstream_addr"'
+    '}';
+
+    access_log /var/log/nginx/access.json apm_json;
+}
+</code></pre>
+
+            <h3>Incident Debugging: 502 Bad Gateway vs 504 Gateway Timeout</h3>
+            <p>These are the two most common errors a DevOps engineer tackles.</p>
+            <ul>
+                <li><strong>502 Bad Gateway:</strong> NGINX successfully reached out, but the upstream TCP port was
+                    closed, rejected the connection, or returned malformed data. <em>Action: Check if app server
+                        container crashed.</em></li>
+                <li><strong>504 Gateway Timeout:</strong> NGINX established the connection, sent the payload, but the
+                    upstream application didn't respond within <code>proxy_read_timeout</code>. <em>Action: Check
+                        database locks, expensive queries, or deadlocks in the backend app.</em></li>
+            </ul>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section id="ha">
+            <h2>7️⃣ High Availability & Scalability</h2>
+            <p>NGINX on a single compute instance is a SPOF (Single Point of Failure). Architecting for high
+                availability requires an N-Tier setup.</p>
+
+            <h3>Web Farm Architecture</h3>
+            <ol>
+                <li><strong>DNS Layer:</strong> Cloudflare or Route53 with Geo-routing.</li>
+                <li><strong>L4 Load Balancer:</strong> AWS ALB / HAProxy / Keepalived (VRIP) wrapping multiple NGINX
+                    instances.</li>
+                <li><strong>L7 Proxy Layer (NGINX):</strong> Multiple redundant NGINX instances doing SSL offloading,
+                    rate limiting, and HTTP routing.</li>
+                <li><strong>Compute Layer (Upstreams):</strong> EKS Pods, ECS Containers, or EC2 instances running the
+                    actual business logic.</li>
+            </ol>
+
+            <h3>Blue-Green Deployments</h3>
+            <p>NGINX enables instant cut-over deployments by swapping upstreams.</p>
+            <pre><code># Deploy V2 to the backend_blue cluster
+upstream backend {
+    # server 10.0.1.50:80; # Version 1 (Green - drained)
+    server 10.0.1.60:80; # Version 2 (Blue - active)
+}
+# Run `nginx -s reload` to switch traffic gracefully
+</code></pre>
+        </section>
+
+        <!-- SECTION 8 -->
+        <section id="devops">
+            <h2>8️⃣ DevOps & Cloud Integration</h2>
+
+            <h3>Docker Integration</h3>
+            <p>Running NGINX in Docker implies daemon-less execution. The core command must block the container from
+                exiting: <code>CMD ["nginx", "-g", "daemon off;"]</code>.</p>
+
+            <h3>Kubernetes Ingress (High-Level)</h3>
+            <p>The <code>ingress-nginx</code> controller maps K8s Ingress objects dynamically into an
+                <code>nginx.conf</code> ruleset across pods. It listens to the K8s API via Lua plugins and reloads
+                dynamically without dropping active connections.</p>
+
+            <h3>Zero-Downtime Reloads</h3>
+            <p>A true Sysadmin knows how to apply new configurations without closing active TCP sessions.</p>
+            <pre><code># 1. Test configuration syntax FIRST
+nginx -t
+
+# 2. Issue a graceful reload 
+# Master process parses new config, spawns new workers, 
+# and tells old workers to shut down gracefully after finishing current requests.
+nginx -s reload
+</code></pre>
+        </section>
+
+        <!-- SECTION 9 -->
+        <section id="qa">
+            <h2>9️⃣ Top 50 NGINX Interview Questions</h2>
+            <div class="qa-list">
+                <div class="qa-item">
+                    <div class="qa-q">1. What is NGINX?</div>
+                    <div class="qa-a">An open-source, high-performance HTTP web server, reverse proxy, and API gateway
+                        driven by an asynchronous, event-driven architecture.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">2. Main difference between NGINX and Apache?</div>
+                    <div class="qa-a">Apache assigns a thread/process per connection (blocking). NGINX uses an event
+                        loop to handle thousands of connections per worker (non-blocking).</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">3. What is a "Master Process"?</div>
+                    <div class="qa-a">The root process that reads configurations and maintains/spawns worker processes.
+                    </div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">4. What is a "Worker Process"?</div>
+                    <div class="qa-a">Unprivileged processes that use epoll/kqueue to handle actual network I/O and
+                        client requests.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">5. How does `worker_processes auto;` work?</div>
+                    <div class="qa-a">It detects the number of available CPU cores and spawns exactly one worker per
+                        core to minimize CPU context switching.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">6. What is `epoll`?</div>
+                    <div class="qa-a">A Linux kernel system call for scalable I/O event notification, the backbone of
+                        NGINX's concurrency.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">7. What is the C10K problem?</div>
+                    <div class="qa-a">The challenge of optimizing network sockets to handle 10,000 concurrent
+                        connections, which NGINX was explicitly built to solve.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">8. How to test NGINX config without restarting?</div>
+                    <div class="qa-a">Use the `nginx -t` command to validate syntax and paths.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">9. How do you reload configs with zero downtime?</div>
+                    <div class="qa-a">`nginx -s reload`. Master spawns new workers, old workers serve active connections
+                        then die gracefully.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">10. Explain the Context hierarchy.</div>
+                    <div class="qa-a">Main -> Events -> HTTP -> Server -> Location. Configuration directives cascade
+                        down.</div>
+                </div>
+
+                <div class="qa-item">
+                    <div class="qa-q">11. What is a Reverse Proxy?</div>
+                    <div class="qa-a">A server that sits in front of backend applications, routing client requests to
+                        them and shielding their direct identity.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">12. What directive defines a reverse proxy?</div>
+                    <div class="qa-a">`proxy_pass http://backend;`</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">13. What is an upstream block?</div>
+                    <div class="qa-a">A context that defines a pool of backend servers for load balancing.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">14. Default Load Balancing algorithm?</div>
+                    <div class="qa-a">Round Robin. Requests are passed sequentially across the upstream pool.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">15. When to use `least_conn`?</div>
+                    <div class="qa-a">When request processing times vary significantly, ensuring new connections go to
+                        the least busy node.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">16. How to achieve session stickiness?</div>
+                    <div class="qa-a">Using the `ip_hash;` directive inside the upstream block.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">17. Difference between Layer 4 and Layer 7 proxying?</div>
+                    <div class="qa-a">L4 uses the `stream` context (TCP/UDP, raw IPs). L7 uses the `http` context (HTTP
+                        headers, URIs).</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">18. Fix for generic 502 Bad Gateway?</div>
+                    <div class="qa-a">Check if the upstream application service is running, listening on the right port,
+                        or restricted by firewalls.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">19. Fix for 504 Gateway Timeout?</div>
+                    <div class="qa-a">Increase `proxy_read_timeout` if the backend needs more time, or debug database
+                        queries dragging down the backend.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">20. What is `X-Forwarded-For`?</div>
+                    <div class="qa-a">An HTTP header injected by NGINX to pass the original client's public IP address
+                        to the backend application.</div>
+                </div>
+
+                <div class="qa-item">
+                    <div class="qa-q">21. How to enable SSL?</div>
+                    <div class="qa-a">`listen 443 ssl; ssl_certificate /path.crt; ssl_certificate_key /path.key;`</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">22. What is SSL Termination?</div>
+                    <div class="qa-a">Decrypting HTTPS traffic at the NGINX layer and sending plain HTTP to the internal
+                        backend networks, saving app CPU.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">23. How to enforce HTTPS only?</div>
+                    <div class="qa-a">In port 80 server block, add `return 301 https://$host$request_uri;`.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">24. What is HSTS?</div>
+                    <div class="qa-a">Strict Transport Security - a header informing browsers to structurally deny HTTP
+                        connections to this domain in the future.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">25. How do you limit brute force attacks?</div>
+                    <div class="qa-a">Using `limit_req_zone` and `limit_req` directives to throttle requests per second
+                        per IP.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">26. Command to drop connections outright?</div>
+                    <div class="qa-a">`return 444;` closes the connection instantly without returning an HTTP header.
+                    </div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">27. How to restrict access by IP?</div>
+                    <div class="qa-a">`allow 192.168.1.0/24; deny all;` inside a location or server block.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">28. What is `server_tokens off;`?</div>
+                    <div class="qa-a">A security directive that removes the NGINX version number from the Server
+                        response header and error pages.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">29. How to configure Basic Auth?</div>
+                    <div class="qa-a">`auth_basic "Restricted"; auth_basic_user_file /etc/nginx/.htpasswd;`</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">30. Can NGINX block SQL Injection directly?</div>
+                    <div class="qa-a">Out of the box, no. It requires NAXSI or ModSecurity (WAF modules) integration.
+                    </div>
+                </div>
+
+                <div class="qa-item">
+                    <div class="qa-q">31. What is `worker_connections`?</div>
+                    <div class="qa-a">The maximum number of simultaneous connections that a single worker process can
+                        handle.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">32. How to calculate max total connections?</div>
+                    <div class="qa-a">`worker_processes * worker_connections` (Accounting for file descriptor OS
+                        limits).</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">33. Why use `sendfile on;`?</div>
+                    <div class="qa-a">It allows data transfer directly from disk to TCP socket within kernel space,
+                        avoiding costly context switches to user space.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">34. What is `tcp_nopush`?</div>
+                    <div class="qa-a">Optimizes `sendfile` by forcing NGINX to send HTTP response headers in the same
+                        packet as the file data chunk.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">35. Purpose of HTTP Keep-Alive?</div>
+                    <div class="qa-a">Allows multiple requests/responses over a single TCP connection, drastically
+                        reducing 3-way handshake overhead.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">36. What does `gzip on;` do?</div>
+                    <div class="qa-a">Compresses text payloads (HTML, CSS, JSON) on the fly, reducing bandwidth usage at
+                        the cost of slight CPU overhead.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">37. How to handle "Worker connections are not enough"?</div>
+                    <div class="qa-a">Increase `worker_connections`, but remember to also increase the OS file
+                        descriptor limit (`ulimit -n` and `worker_rlimit_nofile`).</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">38. What is Microcaching?</div>
+                    <div class="qa-a">Caching dynamic content (like API responses) for extremely short intervals (1-2
+                        seconds) using `proxy_cache`. Handles traffic spikes effectively.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">39. FastCGI vs Proxy Pass?</div>
+                    <div class="qa-a">`fastcgi_pass` speaks the FastCGI binary protocol (often used with PHP-FPM).
+                        `proxy_pass` speaks HTTP.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">40. Where do you tune large file upload limits?</div>
+                    <div class="qa-a">`client_max_body_size 50M;` to prevent HTTP 413 Payload Too Large errors.</div>
+                </div>
+
+                <div class="qa-item">
+                    <div class="qa-q">41. File paths for default logs?</div>
+                    <div class="qa-a">`/var/log/nginx/access.log` and `/var/log/nginx/error.log`.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">42. How to log in JSON format?</div>
+                    <div class="qa-a">Define a `log_format` payload wrapping variables in JSON brackets, and apply it to
+                        `access_log /path format_name;`.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">43. What is `$request_time`?</div>
+                    <div class="qa-a">Total time (in seconds with ms resolution) from reading the first client bytes to
+                        sending the last bytes.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">44. What is `$upstream_response_time`?</div>
+                    <div class="qa-a">Time it took precisely for the backend upstream pool to respond. Crucial for
+                        tracing latency.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">45. How to enable debug logging?</div>
+                    <div class="qa-a">Recompile NGINX with `--with-debug` (or use debug binary) and append `debug` to
+                        error_log: `error_log /map.log debug;`.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">46. Role in Kubernetes?</div>
+                    <div class="qa-a">Used universally as the default Ingress Controller (`ingress-nginx`) mapping
+                        internet traffic to ClusterIP services.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">47. Why `daemon off` in Docker?</div>
+                    <div class="qa-a">Containers exit if their primary PID (PID 1) backgrounds itself. `daemon off`
+                        keeps NGINX in the foreground.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">48. What is location modifier `~*`?</div>
+                    <div class="qa-a">It signifies a case-insensitive Regular Expression match for URIs.</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">49. Priority of Location blocks?</div>
+                    <div class="qa-a">Exact match (`=`), Preferential Prefix (`^~`), Regex (`~`, `~*`), then Standard
+                        Prefix (`/`).</div>
+                </div>
+                <div class="qa-item">
+                    <div class="qa-q">50. If two upstreams are equal, how does RR choose?</div>
+                    <div class="qa-a">Round Robin strictly alternates sequentially unless weighted (`weight=3`).</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Created by GYK | Technical Interview Revision Portal</p>
+            <p><small>Senior Infrastructure Architecture Notes</small></p>
+        </footer>
+    </main>
+
+    <script>
+        // Theme Toggling Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlDoc = document.documentElement;
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        htmlDoc.setAttribute('data-theme', currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = htmlDoc.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            htmlDoc.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Print Logic
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar on mobile when a link is clicked
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+
+        // Scroll Spy / Active Section Highlighting
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 150)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
